@@ -15,7 +15,6 @@ public static class SeedData
 
         await context.Database.MigrateAsync();
 
-        // Create Roles
         string[] roles = { "Admin", "Faculty", "Student" };
         foreach (var role in roles)
         {
@@ -25,7 +24,6 @@ public static class SeedData
             }
         }
 
-        // Create Admin User
         string adminEmail = "admin@vgc.com";
         if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
@@ -39,7 +37,6 @@ public static class SeedData
             await userManager.AddToRoleAsync(adminUser, "Admin");
         }
 
-        // Create Faculty User
         string facultyEmail = "faculty@vgc.com";
         if (await userManager.FindByEmailAsync(facultyEmail) == null)
         {
@@ -53,7 +50,6 @@ public static class SeedData
             await userManager.AddToRoleAsync(facultyUser, "Faculty");
         }
 
-        // Create Student User
         string studentEmail = "student@vgc.com";
         if (await userManager.FindByEmailAsync(studentEmail) == null)
         {
@@ -67,7 +63,6 @@ public static class SeedData
             await userManager.AddToRoleAsync(studentUser, "Student");
         }
 
-        // Create Branches if not exist
         if (!context.Branches.Any())
         {
             context.Branches.AddRange(
@@ -78,13 +73,12 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        // Create Faculty Profiles
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUser != null && !context.FacultyProfiles.Any(f => f.IdentityUserId == adminUser.Id))
+        var adminUserEntity = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUserEntity != null && !context.FacultyProfiles.Any(f => f.IdentityUserId == adminUserEntity.Id))
         {
             context.FacultyProfiles.Add(new FacultyProfile
             {
-                IdentityUserId = adminUser.Id,
+                IdentityUserId = adminUserEntity.Id,
                 Name = "Admin User",
                 Email = adminEmail,
                 Phone = "01 123 4567"
@@ -92,12 +86,12 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        var facultyUser = await userManager.FindByEmailAsync(facultyEmail);
-        if (facultyUser != null && !context.FacultyProfiles.Any(f => f.IdentityUserId == facultyUser.Id))
+        var facultyUserEntity = await userManager.FindByEmailAsync(facultyEmail);
+        if (facultyUserEntity != null && !context.FacultyProfiles.Any(f => f.IdentityUserId == facultyUserEntity.Id))
         {
             context.FacultyProfiles.Add(new FacultyProfile
             {
-                IdentityUserId = facultyUser.Id,
+                IdentityUserId = facultyUserEntity.Id,
                 Name = "Professor John Smith",
                 Email = facultyEmail,
                 Phone = "01 123 4568"
@@ -105,7 +99,6 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        // Create Student Profiles
         var studentUserEntity = await userManager.FindByEmailAsync(studentEmail);
         if (studentUserEntity != null && !context.StudentProfiles.Any(s => s.IdentityUserId == studentUserEntity.Id))
         {
@@ -122,7 +115,6 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        // Create additional Students
         if (context.StudentProfiles.Count() < 5)
         {
             var existingStudents = await context.StudentProfiles.ToListAsync();
@@ -172,7 +164,6 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        // Create Courses
         var dublinBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Dublin Branch");
         var corkBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Cork Branch");
         var galwayBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Galway Branch");
@@ -180,44 +171,59 @@ public static class SeedData
 
         if (!context.Courses.Any())
         {
-            context.Courses.AddRange(
-                new Course
+            var coursesList = new List<Course>();
+            
+            if (dublinBranch != null)
+            {
+                coursesList.Add(new Course
                 {
                     Name = "Computer Science",
-                    BranchId = dublinBranch?.Id ?? 1,
+                    BranchId = dublinBranch.Id,
                     FacultyProfileId = facultyProfile?.Id,
                     StartDate = new DateTime(2026, 9, 1),
                     EndDate = new DateTime(2027, 5, 31)
-                },
-                new Course
+                });
+                coursesList.Add(new Course
                 {
                     Name = "Business Management",
-                    BranchId = dublinBranch?.Id ?? 1,
+                    BranchId = dublinBranch.Id,
                     FacultyProfileId = facultyProfile?.Id,
                     StartDate = new DateTime(2026, 9, 1),
                     EndDate = new DateTime(2027, 5, 31)
-                },
-                new Course
+                });
+            }
+            
+            if (corkBranch != null)
+            {
+                coursesList.Add(new Course
                 {
                     Name = "Software Engineering",
-                    BranchId = corkBranch?.Id ?? 2,
+                    BranchId = corkBranch.Id,
                     FacultyProfileId = facultyProfile?.Id,
                     StartDate = new DateTime(2026, 9, 1),
                     EndDate = new DateTime(2027, 5, 31)
-                },
-                new Course
+                });
+            }
+            
+            if (galwayBranch != null)
+            {
+                coursesList.Add(new Course
                 {
                     Name = "Data Science",
-                    BranchId = galwayBranch?.Id ?? 3,
+                    BranchId = galwayBranch.Id,
                     FacultyProfileId = facultyProfile?.Id,
                     StartDate = new DateTime(2026, 9, 1),
                     EndDate = new DateTime(2027, 5, 31)
-                }
-            );
-            await context.SaveChangesAsync();
+                });
+            }
+            
+            if (coursesList.Any())
+            {
+                context.Courses.AddRange(coursesList);
+                await context.SaveChangesAsync();
+            }
         }
 
-        // Create Enrolments
         if (!context.CourseEnrolments.Any())
         {
             var students = await context.StudentProfiles.ToListAsync();
@@ -230,7 +236,7 @@ public static class SeedData
 
                 foreach (var student in students)
                 {
-                    int numCourses = rnd.Next(1, 3);
+                    int numCourses = rnd.Next(1, Math.Min(3, courses.Count + 1));
                     var shuffledCourses = courses.OrderBy(x => rnd.Next()).Take(numCourses);
 
                     foreach (var course in shuffledCourses)
@@ -256,7 +262,6 @@ public static class SeedData
             }
         }
 
-        // Create Assignments
         if (!context.Assignments.Any())
         {
             var courses = await context.Courses.ToListAsync();
@@ -284,7 +289,6 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        // Create Assignment Results
         if (!context.AssignmentResults.Any())
         {
             var assignments = await context.Assignments.ToListAsync();
@@ -318,7 +322,6 @@ public static class SeedData
             }
         }
 
-        // Create Exams
         if (!context.Exams.Any())
         {
             var courses = await context.Courses.ToListAsync();
@@ -348,7 +351,6 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        // Create Exam Results
         if (!context.ExamResults.Any())
         {
             var exams = await context.Exams.ToListAsync();
@@ -385,7 +387,6 @@ public static class SeedData
             }
         }
 
-        // Create Attendance Records
         if (!context.AttendanceRecords.Any())
         {
             var enrolments = await context.CourseEnrolments.ToListAsync();
