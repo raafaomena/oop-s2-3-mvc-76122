@@ -1,0 +1,75 @@
+@model IEnumerable<VgcCollege.Web.Models.Exam>
+
+@{
+    ViewData["Title"] = "Exams";
+}
+
+<h1>Exams</h1>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label for="courseSelect" class="form-label">Filter by Course:</label>
+        <select id="courseSelect" class="form-select" onchange="location.href='?courseId=' + this.value">
+            <option value="">All Courses</option>
+            @foreach (var course in ViewBag.Courses)
+            {
+                <option value="@course.Id" selected="@(ViewBag.CourseId == course.Id)">
+                    @course.Name
+                </option>
+            }
+        </select>
+    </div>
+</div>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Exam</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Course</th>
+            <th>Date</th>
+            <th>Max Score</th>
+            <th>Results Released</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.Course?.Name</td>
+                <td>@item.Date.ToShortDateString()</td>
+                <td>@item.MaxScore</td>
+                <td>
+                    @if (item.ResultsReleased)
+                    {
+                        <span class="badge bg-success">Released</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning">Provisional</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Results" asp-route-examId="@item.Id" class="btn btn-sm btn-success">Results</a>
+                    <form asp-action="ToggleRelease" method="post" style="display:inline">
+                        <input type="hidden" name="examId" value="@item.Id" />
+                        <button type="submit" class="btn btn-sm @(item.ResultsReleased ? "btn-secondary" : "btn-info")">
+                            @(item.ResultsReleased ? "Hide Results" : "Release Results")
+                        </button>
+                    </form>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    document.getElementById('courseSelect').value = '@ViewBag.CourseId';
+</script>

@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "My Exam Results";
+}
+
+<h1>My Exam Results</h1>
+<h4>Student: @ViewBag.StudentName</h4>
+<hr />
+
+@if (((System.Collections.Generic.List<VgcCollege.Web.Models.ExamResult>)ViewBag.ReleasedResults).Any())
+{
+    <h3 class="text-success">Released Results</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Exam Title</th>
+                <th>Course</th>
+                <th>Date</th>
+                <th>Score</th>
+                <th>Grade</th>
+                <th>Max Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var result in ViewBag.ReleasedResults)
+            {
+                <tr>
+                    <td>@result.Exam.Title</td>
+                    <td>@result.Exam.Course?.Name</td>
+                    <td>@result.Exam.Date.ToShortDateString()</td>
+                    <td>@result.Score</td>
+                    <td><strong>@result.Grade</strong></td>
+                    <td>@result.Exam.MaxScore</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">No released exam results available.</div>
+}
+
+@if (((System.Collections.Generic.List<VgcCollege.Web.Models.ExamResult>)ViewBag.ProvisionalResults).Any())
+{
+    <h3 class="text-warning">Provisional Results (Not Yet Released)</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Exam Title</th>
+                <th>Course</th>
+                <th>Date</th>
+                <th>Score</th>
+                <th>Grade</th>
+                <th>Max Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var result in ViewBag.ProvisionalResults)
+            {
+                <tr>
+                    <td>@result.Exam.Title</td>
+                    <td>@result.Exam.Course?.Name</td>
+                    <td>@result.Exam.Date.ToShortDateString()</td>
+                    <td>@result.Score</td>
+                    <td><strong>@result.Grade</strong> <span class="badge bg-warning">Provisional</span></td>
+                    <td>@result.Exam.MaxScore</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<p>
+    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Home</a>
+</p>

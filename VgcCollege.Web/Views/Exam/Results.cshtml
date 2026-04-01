@@ -1,0 +1,49 @@
+@{
+    var exam = ViewBag.Exam as VgcCollege.Web.Models.Exam;
+    var results = ViewBag.Results as Dictionary<int, VgcCollege.Web.Models.ExamResult>;
+    var students = ViewBag.Students as List<VgcCollege.Web.Models.StudentProfile>;
+}
+
+<h1>Exam Results: @exam?.Title</h1>
+<h4>Course: @exam?.Course?.Name</h4>
+<hr />
+
+<form method="post" asp-action="SaveResult">
+    <input type="hidden" name="examId" value="@exam?.Id" />
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Student</th>
+            <th>Score (Max: @exam?.MaxScore)</th>
+            <th>Grade</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var student in students)
+        {
+            var result = results.ContainsKey(student.Id) ? results[student.Id] : null;
+            <tr>
+                <td>@student.Name</td>
+                <td>
+                    <input type="number" name="score" value="@(result?.Score ?? 0)" 
+                           class="form-control" style="width: 100px" 
+                           min="0" max="@exam?.MaxScore" />
+                    <input type="hidden" name="studentId" value="@student.Id" />
+                </td>
+                <td>
+                    <input type="text" name="grade" value="@result?.Grade" 
+                           class="form-control" style="width: 80px" placeholder="A,B,C,D,F" />
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</form>
+
+<p>
+    <a asp-action="Index" class="btn btn-secondary">Back to Exams</a>
+</p>
