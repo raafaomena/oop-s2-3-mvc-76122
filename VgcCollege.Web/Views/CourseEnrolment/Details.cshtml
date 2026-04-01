@@ -1,0 +1,30 @@
+@model VgcCollege.Web.Models.CourseEnrolment
+
+@{
+    ViewData["Title"] = "Enrolment Details";
+}
+
+<h1>Enrolment Details</h1>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Student</dt>
+            <dd class="col-sm-9">@Model.StudentProfile?.Name</dd>
+            
+            <dt class="col-sm-3">Course</dt>
+            <dd class="col-sm-9">@Model.Course?.Name</dd>
+            
+            <dt class="col-sm-3">Enrolment Date</dt>
+            <dd class="col-sm-9">@Model.EnrolDate.ToShortDateString()</dd>
+            
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">@Model.Status</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

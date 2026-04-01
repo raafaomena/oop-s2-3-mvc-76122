@@ -1,13 +1,14 @@
 @model VgcCollege.Web.Models.CourseEnrolment
 
 @{
-    ViewData["Title"] = "Create Enrolment";
+    ViewData["Title"] = "Edit Enrolment";
 }
 
-<h1>Create Enrolment</h1>
+<h1>Edit Enrolment</h1>
 
-<form asp-action="Create">
+<form asp-action="Edit">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
     
     <div class="form-group">
         <label asp-for="StudentProfileId" class="control-label">Student</label>
@@ -25,8 +26,18 @@
         <span asp-validation-for="CourseId" class="text-danger"></span>
     </div>
     
+    <div class="form-group">
+        <label asp-for="Status" class="control-label"></label>
+        <select asp-for="Status" class="form-control">
+            <option value="Active">Active</option>
+            <option value="Completed">Completed</option>
+            <option value="Dropped">Dropped</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+    
     <div class="form-group mt-3">
-        <input type="submit" value="Create" class="btn btn-primary" />
+        <input type="submit" value="Save" class="btn btn-primary" />
         <a asp-action="Index" class="btn btn-secondary">Back to List</a>
     </div>
 </form>
