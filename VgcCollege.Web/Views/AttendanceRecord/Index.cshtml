@@ -1,0 +1,77 @@
+@model IEnumerable<VgcCollege.Web.Models.AttendanceRecord>
+
+@{
+    ViewData["Title"] = "Attendance Records";
+}
+
+<h1>Attendance Records</h1>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label for="enrolmentSelect" class="form-label">Filter by Student/Course:</label>
+        <select id="enrolmentSelect" class="form-select" onchange="location.href='?enrolmentId=' + this.value">
+            <option value="">All Enrolments</option>
+            @foreach (var enrolment in ViewBag.Enrolments)
+            {
+                <option value="@enrolment.Id" selected="@(ViewBag.EnrolmentId == enrolment.Id)">
+                    @enrolment.StudentProfile.Name - @enrolment.Course.Name
+                </option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (ViewBag.EnrolmentId != null)
+{
+    <div class="alert alert-info">
+        <strong>Student:</strong> @ViewBag.StudentName | <strong>Course:</strong> @ViewBag.CourseName
+    </div>
+    <p>
+        <a asp-action="Create" asp-route-enrolmentId="@ViewBag.EnrolmentId" class="btn btn-primary">Add Attendance Record</a>
+    </p>
+}
+
+<table class="table table-striped">
+    <thead>
+        32
+            <th>Student</th>
+            <th>Course</th>
+            <th>Week</th>
+            <th>Date</th>
+            <th>Present</th>
+            <th></th>
+        </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CourseEnrolment?.StudentProfile?.Name</td>
+                <td>@item.CourseEnrolment?.Course?.Name</td>
+                <td>@item.WeekNumber</td>
+                <td>@item.Date.ToShortDateString()</td>
+                <td>
+                    @if (item.Present)
+                    {
+                        <span class="badge bg-success">Present</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Absent</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<p>
+    <a asp-action="Index" asp-controller="CourseEnrolment" class="btn btn-secondary">Back to Enrolments</a>
+</p>
+
+<script>
+    document.getElementById('enrolmentSelect').value = '@ViewBag.EnrolmentId';
+</script>
