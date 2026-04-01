@@ -25,9 +25,10 @@ public static class SeedData
         }
 
         string adminEmail = "admin@vgc.com";
-        if (await userManager.FindByEmailAsync(adminEmail) == null)
+        IdentityUser adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
         {
-            var adminUser = new IdentityUser
+            adminUser = new IdentityUser
             {
                 UserName = adminEmail,
                 Email = adminEmail,
@@ -38,9 +39,10 @@ public static class SeedData
         }
 
         string facultyEmail = "faculty@vgc.com";
-        if (await userManager.FindByEmailAsync(facultyEmail) == null)
+        IdentityUser facultyUser = await userManager.FindByEmailAsync(facultyEmail);
+        if (facultyUser == null)
         {
-            var facultyUser = new IdentityUser
+            facultyUser = new IdentityUser
             {
                 UserName = facultyEmail,
                 Email = facultyEmail,
@@ -51,9 +53,10 @@ public static class SeedData
         }
 
         string studentEmail = "student@vgc.com";
-        if (await userManager.FindByEmailAsync(studentEmail) == null)
+        IdentityUser studentUser = await userManager.FindByEmailAsync(studentEmail);
+        if (studentUser == null)
         {
-            var studentUser = new IdentityUser
+            studentUser = new IdentityUser
             {
                 UserName = studentEmail,
                 Email = studentEmail,
@@ -73,12 +76,11 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        var adminUserEntity = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUserEntity != null && !context.FacultyProfiles.Any(f => f.IdentityUserId == adminUserEntity.Id))
+        if (!context.FacultyProfiles.Any(f => f.IdentityUserId == adminUser.Id))
         {
             context.FacultyProfiles.Add(new FacultyProfile
             {
-                IdentityUserId = adminUserEntity.Id,
+                IdentityUserId = adminUser.Id,
                 Name = "Admin User",
                 Email = adminEmail,
                 Phone = "01 123 4567"
@@ -86,12 +88,11 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        var facultyUserEntity = await userManager.FindByEmailAsync(facultyEmail);
-        if (facultyUserEntity != null && !context.FacultyProfiles.Any(f => f.IdentityUserId == facultyUserEntity.Id))
+        if (!context.FacultyProfiles.Any(f => f.IdentityUserId == facultyUser.Id))
         {
             context.FacultyProfiles.Add(new FacultyProfile
             {
-                IdentityUserId = facultyUserEntity.Id,
+                IdentityUserId = facultyUser.Id,
                 Name = "Professor John Smith",
                 Email = facultyEmail,
                 Phone = "01 123 4568"
@@ -99,12 +100,11 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        var studentUserEntity = await userManager.FindByEmailAsync(studentEmail);
-        if (studentUserEntity != null && !context.StudentProfiles.Any(s => s.IdentityUserId == studentUserEntity.Id))
+        if (!context.StudentProfiles.Any(s => s.IdentityUserId == studentUser.Id))
         {
             context.StudentProfiles.Add(new StudentProfile
             {
-                IdentityUserId = studentUserEntity.Id,
+                IdentityUserId = studentUser.Id,
                 Name = "Alice Johnson",
                 Email = studentEmail,
                 Phone = "087 123 4567",
@@ -112,55 +112,6 @@ public static class SeedData
                 DateOfBirth = new DateTime(2000, 5, 15),
                 StudentNumber = "STU001"
             });
-            await context.SaveChangesAsync();
-        }
-
-        if (context.StudentProfiles.Count() < 5)
-        {
-            var existingStudents = await context.StudentProfiles.ToListAsync();
-            
-            if (!existingStudents.Any(s => s.Name == "Bob Williams"))
-            {
-                context.StudentProfiles.Add(new StudentProfile
-                {
-                    IdentityUserId = null,
-                    Name = "Bob Williams",
-                    Email = "bob.williams@example.com",
-                    Phone = "087 234 5678",
-                    Address = "15 Park Avenue, Cork",
-                    DateOfBirth = new DateTime(2001, 8, 20),
-                    StudentNumber = "STU002"
-                });
-            }
-            
-            if (!existingStudents.Any(s => s.Name == "Carol Davis"))
-            {
-                context.StudentProfiles.Add(new StudentProfile
-                {
-                    IdentityUserId = null,
-                    Name = "Carol Davis",
-                    Email = "carol.davis@example.com",
-                    Phone = "087 345 6789",
-                    Address = "8 Bay View, Galway",
-                    DateOfBirth = new DateTime(1999, 3, 10),
-                    StudentNumber = "STU003"
-                });
-            }
-            
-            if (!existingStudents.Any(s => s.Name == "David Miller"))
-            {
-                context.StudentProfiles.Add(new StudentProfile
-                {
-                    IdentityUserId = null,
-                    Name = "David Miller",
-                    Email = "david.miller@example.com",
-                    Phone = "087 456 7890",
-                    Address = "22 Church Street, Dublin",
-                    DateOfBirth = new DateTime(2000, 11, 25),
-                    StudentNumber = "STU004"
-                });
-            }
-            
             await context.SaveChangesAsync();
         }
 
