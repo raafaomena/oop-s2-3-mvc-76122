@@ -1,0 +1,57 @@
+@model IEnumerable<VgcCollege.Web.Models.Assignment>
+
+@{
+    ViewData["Title"] = "Assignments";
+}
+
+<h1>Assignments</h1>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label for="courseSelect" class="form-label">Filter by Course:</label>
+        <select id="courseSelect" class="form-select" onchange="location.href='?courseId=' + this.value">
+            <option value="">All Courses</option>
+            @foreach (var course in ViewBag.Courses)
+            {
+                <option value="@course.Id" selected="@(ViewBag.CourseId == course.Id)">
+                    @course.Name
+                </option>
+            }
+        </select>
+    </div>
+</div>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Assignment</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+    32
+    <th>Title</th>
+    <th>Course</th>
+    <th>Max Score</th>
+    <th>Due Date</th>
+    <th></th>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Title</td>
+            <td>@item.Course?.Name</td>
+            <td>@item.MaxScore</td>
+            <td>@item.DueDate.ToShortDateString()</td>
+            <td>
+                <a asp-action="Gradebook" asp-route-assignmentId="@item.Id" class="btn btn-sm btn-success">Gradebook</a>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<script>
+    document.getElementById('courseSelect').value = '@ViewBag.CourseId';
+</script>
