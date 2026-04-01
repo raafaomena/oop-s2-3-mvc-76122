@@ -33,7 +33,7 @@
 <h3>Enrolled Students</h3>
 <table class="table table-striped">
     <thead>
-    <tr>
+    32
     <th>Student Name</th>
     <th>Student Number</th>
     <th>Email</th>
@@ -44,12 +44,12 @@
     @foreach (var enrolment in Model.Enrolments)
     {
         <tr>
-        <td>@enrolment.StudentProfile?.Name</td
-        td@enrolment.StudentProfile?.StudentNumber</td
-        td@enrolment.StudentProfile?.Email</td
-            td@enrolment.EnrolDate.ToShortDateString()</td
-            td@enrolment.Status</td
-            </tr
+            <td>@enrolment.StudentProfile?.Name</td>
+            <td>@enrolment.StudentProfile?.StudentNumber</td>
+            <td>@enrolment.StudentProfile?.Email</td>
+            <td>@enrolment.EnrolDate.ToShortDateString()</td>
+            <td>@enrolment.Status</td>
+        </tr>
     }
     </tbody>
 </table>
