@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "oop-s2-3-mvc-76122", "oop-s2-3-mvc-76122\oop-s2-3-mvc-76122.csproj", "{91DF66C3-3EC8-47CB-AA87-70EE73DB3E98}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{91DF66C3-3EC8-47CB-AA87-70EE73DB3E98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91DF66C3-3EC8-47CB-AA87-70EE73DB3E98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91DF66C3-3EC8-47CB-AA87-70EE73DB3E98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91DF66C3-3EC8-47CB-AA87-70EE73DB3E98}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
