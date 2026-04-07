@@ -18,10 +18,29 @@ public class AssignmentController : Controller
     [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Index(int? courseId)
     {
-        var query = _context.Assignments
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var isAdmin = User.IsInRole("Admin");
+        
+        IQueryable<Assignment> query = _context.Assignments
             .Include(a => a.Course)
             .ThenInclude(c => c.Branch)
             .AsQueryable();
+
+        if (!isAdmin)
+        {
+            var faculty = await _context.FacultyProfiles
+                .FirstOrDefaultAsync(f => f.IdentityUserId == userId);
+            
+            if (faculty != null)
+            {
+                var facultyCourseIds = await _context.Courses
+                    .Where(c => c.FacultyProfileId == faculty.Id)
+                    .Select(c => c.Id)
+                    .ToListAsync();
+                
+                query = query.Where(a => facultyCourseIds.Contains(a.CourseId));
+            }
+        }
 
         if (courseId.HasValue)
         {
@@ -31,7 +50,19 @@ public class AssignmentController : Controller
             ViewBag.CourseName = course?.Name;
         }
 
-        ViewBag.Courses = await _context.Courses.ToListAsync();
+        var coursesQuery = _context.Courses.AsQueryable();
+        if (!isAdmin)
+        {
+            var faculty = await _context.FacultyProfiles
+                .FirstOrDefaultAsync(f => f.IdentityUserId == userId);
+            
+            if (faculty != null)
+            {
+                coursesQuery = coursesQuery.Where(c => c.FacultyProfileId == faculty.Id);
+            }
+        }
+        
+        ViewBag.Courses = await coursesQuery.ToListAsync();
         var assignments = await query.ToListAsync();
         return View(assignments);
     }
@@ -51,6 +82,20 @@ public class AssignmentController : Controller
         if (assignment == null)
         {
             return NotFound();
+        }
+
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var isAdmin = User.IsInRole("Admin");
+        
+        if (!isAdmin)
+        {
+            var faculty = await _context.FacultyProfiles
+                .FirstOrDefaultAsync(f => f.IdentityUserId == userId);
+            
+            if (faculty != null && assignment.Course.FacultyProfileId != faculty.Id)
+            {
+                return Forbid();
+            }
         }
 
         var students = await _context.CourseEnrolments
@@ -75,6 +120,29 @@ public class AssignmentController : Controller
     [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> SaveGrade(int assignmentId, int studentId, int score, string? feedback)
     {
+        var assignment = await _context.Assignments
+            .Include(a => a.Course)
+            .FirstOrDefaultAsync(a => a.Id == assignmentId);
+        
+        if (assignment == null)
+        {
+            return NotFound();
+        }
+        
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var isAdmin = User.IsInRole("Admin");
+        
+        if (!isAdmin)
+        {
+            var faculty = await _context.FacultyProfiles
+                .FirstOrDefaultAsync(f => f.IdentityUserId == userId);
+            
+            if (faculty != null && assignment.Course.FacultyProfileId != faculty.Id)
+            {
+                return Forbid();
+            }
+        }
+
         var existing = await _context.AssignmentResults
             .FirstOrDefaultAsync(r => r.AssignmentId == assignmentId && r.StudentProfileId == studentId);
 
@@ -100,7 +168,7 @@ public class AssignmentController : Controller
         return RedirectToAction(nameof(Gradebook), new { assignmentId });
     }
 
-    [Authorize(Roles = "Admin,Faculty")]
+    [Authorize(Roles = "Admin")]
     public IActionResult Create()
     {
         ViewBag.Courses = _context.Courses.ToList();
@@ -109,7 +177,7 @@ public class AssignmentController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin,Faculty")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(Assignment assignment)
     {
         if (ModelState.IsValid)
@@ -122,7 +190,7 @@ public class AssignmentController : Controller
         return View(assignment);
     }
 
-    [Authorize(Roles = "Admin,Faculty")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -141,7 +209,7 @@ public class AssignmentController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin,Faculty")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id, Assignment assignment)
     {
         if (id != assignment.Id)
@@ -173,7 +241,7 @@ public class AssignmentController : Controller
         return View(assignment);
     }
 
-    [Authorize(Roles = "Admin,Faculty")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -194,7 +262,7 @@ public class AssignmentController : Controller
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin,Faculty")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var assignment = await _context.Assignments.FindAsync(id);
