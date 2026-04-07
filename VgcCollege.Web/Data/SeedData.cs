@@ -115,7 +115,6 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        // Create additional students without Identity accounts
         var existingStudents = await context.StudentProfiles.ToListAsync();
         
         if (!existingStudents.Any(s => s.StudentNumber == "STU002"))
