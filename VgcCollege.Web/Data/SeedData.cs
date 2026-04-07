@@ -115,6 +115,67 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
+        // Create additional students without Identity accounts
+        var existingStudents = await context.StudentProfiles.ToListAsync();
+        
+        if (!existingStudents.Any(s => s.StudentNumber == "STU002"))
+        {
+            context.StudentProfiles.Add(new StudentProfile
+            {
+                IdentityUserId = null,
+                Name = "Bob Williams",
+                Email = "bob.williams@example.com",
+                Phone = "087 234 5678",
+                Address = "15 Park Avenue, Cork",
+                DateOfBirth = new DateTime(2001, 8, 20),
+                StudentNumber = "STU002"
+            });
+        }
+        
+        if (!existingStudents.Any(s => s.StudentNumber == "STU003"))
+        {
+            context.StudentProfiles.Add(new StudentProfile
+            {
+                IdentityUserId = null,
+                Name = "Carol Davis",
+                Email = "carol.davis@example.com",
+                Phone = "087 345 6789",
+                Address = "8 Bay View, Galway",
+                DateOfBirth = new DateTime(1999, 3, 10),
+                StudentNumber = "STU003"
+            });
+        }
+        
+        if (!existingStudents.Any(s => s.StudentNumber == "STU004"))
+        {
+            context.StudentProfiles.Add(new StudentProfile
+            {
+                IdentityUserId = null,
+                Name = "David Miller",
+                Email = "david.miller@example.com",
+                Phone = "087 456 7890",
+                Address = "22 Church Street, Dublin",
+                DateOfBirth = new DateTime(2000, 11, 25),
+                StudentNumber = "STU004"
+            });
+        }
+        
+        if (!existingStudents.Any(s => s.StudentNumber == "STU005"))
+        {
+            context.StudentProfiles.Add(new StudentProfile
+            {
+                IdentityUserId = null,
+                Name = "Emma Wilson",
+                Email = "emma.wilson@example.com",
+                Phone = "087 567 8901",
+                Address = "5 Harbour View, Cork",
+                DateOfBirth = new DateTime(2002, 1, 30),
+                StudentNumber = "STU005"
+            });
+        }
+        
+        await context.SaveChangesAsync();
+
         var dublinBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Dublin Branch");
         var corkBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Cork Branch");
         var galwayBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Galway Branch");
