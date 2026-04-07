@@ -1,18 +1,39 @@
-@model TModel
-
 @{
-    Layout = null;
+    ViewData["Title"] = "Welcome";
 }
 
-<!DOCTYPE html>
-
-<html>
-<head>
-    <title>title</title>
-</head>
-<body>
-<div>
-      
+<div class="text-center">
+    <h1 class="display-4">Welcome to VgcCollege</h1>
+    <p>Multi-Branch Student & Course Management System</p>
+    <hr />
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">For Students</h5>
+                    <p class="card-text">View your courses, assignments, and exam results.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">For Faculty</h5>
+                    <p class="card-text">Manage gradebooks, track attendance, and view your students.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">For Admin</h5>
+                    <p class="card-text">Full control over courses, enrolments, users, and results.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary">Login</a>
+        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-secondary">Register</a>
+    </div>
 </div>
-</body>
-</html>

@@ -1,18 +1,73 @@
-@model TModel
-
 @{
-    Layout = null;
+    ViewData["Title"] = "Admin Dashboard";
 }
 
-<!DOCTYPE html>
+<h1>Admin Dashboard</h1>
+<hr />
 
-<html>
-<head>
-    <title>title</title>
-</head>
-<body>
-<div>
-      
+<div class="row">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Students</h5>
+                <p class="card-text display-4">@ViewBag.TotalStudents</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Courses</h5>
+                <p class="card-text display-4">@ViewBag.TotalCourses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Enrolments</h5>
+                <p class="card-text display-4">@ViewBag.TotalEnrolments</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Faculty</h5>
+                <p class="card-text display-4">@ViewBag.TotalFaculty</p>
+            </div>
+        </div>
+    </div>
 </div>
-</body>
-</html>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a asp-controller="StudentProfile" asp-action="Create" class="btn btn-primary m-1">Register Student</a>
+                <a asp-controller="Course" asp-action="Create" class="btn btn-success m-1">Create Course</a>
+                <a asp-controller="CourseEnrolment" asp-action="Create" class="btn btn-warning m-1">New Enrolment</a>
+                <a asp-controller="Exam" asp-action="Index" class="btn btn-info m-1">Manage Exams</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <p>Use the menu above to manage all system resources.</p>
+                <ul>
+                    <li>Manage students, courses, and enrolments</li>
+                    <li>Track attendance and gradebooks</li>
+                    <li>Release or hide exam results</li>
+                    <li>Assign faculty to courses</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
