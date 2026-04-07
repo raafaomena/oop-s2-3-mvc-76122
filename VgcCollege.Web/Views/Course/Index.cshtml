@@ -6,20 +6,24 @@
 
 <h1>Courses</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New Course</a>
-</p>
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create New Course</a>
+    </p>
+}
 
 <table class="table table-striped">
     <thead>
-    32
-    <th>Name</th>
-    <th>Branch</th>
-    <th>Faculty</th>
-    <th>Start Date</th>
-    <th>End Date</th>
-    <th>Students</th>
-    <th></th>
+    <tr>
+        <th>Name</th>
+        <th>Branch</th>
+        <th>Faculty</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Students</th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
     @foreach (var item in Model)
@@ -33,8 +37,11 @@
             <td>@item.Enrolments.Count</td>
             <td>
                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                }
             </td>
         </tr>
     }
