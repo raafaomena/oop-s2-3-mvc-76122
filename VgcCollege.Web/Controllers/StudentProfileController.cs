@@ -6,7 +6,6 @@ using VgcCollege.Web.Models;
 
 namespace VgcCollege.Web.Controllers;
 
-[Authorize(Roles = "Admin,Faculty")]
 public class StudentProfileController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -16,12 +15,14 @@ public class StudentProfileController : Controller
         _context = context;
     }
 
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Index()
     {
         var students = await _context.StudentProfiles.ToListAsync();
         return View(students);
     }
 
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -39,6 +40,7 @@ public class StudentProfileController : Controller
         return View(student);
     }
 
+    [Authorize(Roles = "Admin,Faculty")]
     public IActionResult Create()
     {
         return View();
@@ -46,6 +48,7 @@ public class StudentProfileController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Create(StudentProfile student)
     {
         if (ModelState.IsValid)
@@ -57,6 +60,7 @@ public class StudentProfileController : Controller
         return View(student);
     }
 
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -74,6 +78,7 @@ public class StudentProfileController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Edit(int id, StudentProfile student)
     {
         if (id != student.Id)
@@ -104,6 +109,7 @@ public class StudentProfileController : Controller
         return View(student);
     }
 
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -123,6 +129,7 @@ public class StudentProfileController : Controller
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var student = await _context.StudentProfiles.FindAsync(id);

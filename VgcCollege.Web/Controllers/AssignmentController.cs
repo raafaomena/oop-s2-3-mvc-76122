@@ -6,7 +6,6 @@ using VgcCollege.Web.Models;
 
 namespace VgcCollege.Web.Controllers;
 
-[Authorize(Roles = "Admin,Faculty")]
 public class AssignmentController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -16,6 +15,7 @@ public class AssignmentController : Controller
         _context = context;
     }
 
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Index(int? courseId)
     {
         var query = _context.Assignments
@@ -36,6 +36,7 @@ public class AssignmentController : Controller
         return View(assignments);
     }
 
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Gradebook(int? assignmentId)
     {
         if (assignmentId == null)
@@ -71,6 +72,7 @@ public class AssignmentController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> SaveGrade(int assignmentId, int studentId, int score, string? feedback)
     {
         var existing = await _context.AssignmentResults
@@ -98,6 +100,7 @@ public class AssignmentController : Controller
         return RedirectToAction(nameof(Gradebook), new { assignmentId });
     }
 
+    [Authorize(Roles = "Admin,Faculty")]
     public IActionResult Create()
     {
         ViewBag.Courses = _context.Courses.ToList();
@@ -106,6 +109,7 @@ public class AssignmentController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Create(Assignment assignment)
     {
         if (ModelState.IsValid)
@@ -118,6 +122,7 @@ public class AssignmentController : Controller
         return View(assignment);
     }
 
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -136,6 +141,7 @@ public class AssignmentController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Edit(int id, Assignment assignment)
     {
         if (id != assignment.Id)
@@ -167,6 +173,7 @@ public class AssignmentController : Controller
         return View(assignment);
     }
 
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -187,6 +194,7 @@ public class AssignmentController : Controller
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var assignment = await _context.Assignments.FindAsync(id);
