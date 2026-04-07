@@ -15,6 +15,7 @@ public static class SeedData
 
         await context.Database.MigrateAsync();
 
+        // Create Roles
         string[] roles = { "Admin", "Faculty", "Student" };
         foreach (var role in roles)
         {
@@ -24,6 +25,7 @@ public static class SeedData
             }
         }
 
+        // Create Admin User
         string adminEmail = "admin@vgc.com";
         IdentityUser adminUser = await userManager.FindByEmailAsync(adminEmail);
         if (adminUser == null)
@@ -38,6 +40,7 @@ public static class SeedData
             await userManager.AddToRoleAsync(adminUser, "Admin");
         }
 
+        // Create Faculty User
         string facultyEmail = "faculty@vgc.com";
         IdentityUser facultyUser = await userManager.FindByEmailAsync(facultyEmail);
         if (facultyUser == null)
@@ -52,20 +55,32 @@ public static class SeedData
             await userManager.AddToRoleAsync(facultyUser, "Faculty");
         }
 
-        string studentEmail = "student@vgc.com";
-        IdentityUser studentUser = await userManager.FindByEmailAsync(studentEmail);
-        if (studentUser == null)
+        // Create Student Users
+        string[] studentEmails = { "alice@vgc.com", "bob@vgc.com", "carol@vgc.com", "david@vgc.com", "emma@vgc.com" };
+        string[] studentNames = { "Alice Johnson", "Bob Williams", "Carol Davis", "David Miller", "Emma Wilson" };
+        string[] studentNumbers = { "STU001", "STU002", "STU003", "STU004", "STU005" };
+        string[] studentAddresses = { "10 College Road, Dublin", "15 Park Avenue, Cork", "8 Bay View, Galway", "22 Church Street, Dublin", "5 Harbour View, Cork" };
+        DateTime[] studentDOBs = { new DateTime(2000, 5, 15), new DateTime(2001, 8, 20), new DateTime(1999, 3, 10), new DateTime(2000, 11, 25), new DateTime(2002, 1, 30) };
+
+        var studentUsers = new List<IdentityUser>();
+        for (int i = 0; i < studentEmails.Length; i++)
         {
-            studentUser = new IdentityUser
+            var studentUser = await userManager.FindByEmailAsync(studentEmails[i]);
+            if (studentUser == null)
             {
-                UserName = studentEmail,
-                Email = studentEmail,
-                EmailConfirmed = true
-            };
-            await userManager.CreateAsync(studentUser, "Student@123");
-            await userManager.AddToRoleAsync(studentUser, "Student");
+                studentUser = new IdentityUser
+                {
+                    UserName = studentEmails[i],
+                    Email = studentEmails[i],
+                    EmailConfirmed = true
+                };
+                await userManager.CreateAsync(studentUser, "Student@123");
+                await userManager.AddToRoleAsync(studentUser, "Student");
+            }
+            studentUsers.Add(studentUser);
         }
 
+        // Create Branches
         if (!context.Branches.Any())
         {
             context.Branches.AddRange(
@@ -76,19 +91,8 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        if (!context.FacultyProfiles.Any(f => f.IdentityUserId == adminUser.Id))
-        {
-            context.FacultyProfiles.Add(new FacultyProfile
-            {
-                IdentityUserId = adminUser.Id,
-                Name = "Admin User",
-                Email = adminEmail,
-                Phone = "01 123 4567"
-            });
-            await context.SaveChangesAsync();
-        }
-
-        if (!context.FacultyProfiles.Any(f => f.IdentityUserId == facultyUser.Id))
+        // Create Faculty Profile
+        if (!context.FacultyProfiles.Any())
         {
             context.FacultyProfiles.Add(new FacultyProfile
             {
@@ -100,179 +104,76 @@ public static class SeedData
             await context.SaveChangesAsync();
         }
 
-        if (!context.StudentProfiles.Any(s => s.IdentityUserId == studentUser.Id))
-        {
-            context.StudentProfiles.Add(new StudentProfile
-            {
-                IdentityUserId = studentUser.Id,
-                Name = "Alice Johnson",
-                Email = studentEmail,
-                Phone = "087 123 4567",
-                Address = "10 College Road, Dublin",
-                DateOfBirth = new DateTime(2000, 5, 15),
-                StudentNumber = "STU001"
-            });
-            await context.SaveChangesAsync();
-        }
-
-        var existingStudents = await context.StudentProfiles.ToListAsync();
+        // Create Student Profiles
+        var facultyProfile = await context.FacultyProfiles.FirstOrDefaultAsync();
         
-        if (!existingStudents.Any(s => s.StudentNumber == "STU002"))
+        for (int i = 0; i < studentUsers.Count; i++)
         {
-            context.StudentProfiles.Add(new StudentProfile
+            if (!context.StudentProfiles.Any(s => s.IdentityUserId == studentUsers[i].Id))
             {
-                IdentityUserId = null,
-                Name = "Bob Williams",
-                Email = "bob.williams@example.com",
-                Phone = "087 234 5678",
-                Address = "15 Park Avenue, Cork",
-                DateOfBirth = new DateTime(2001, 8, 20),
-                StudentNumber = "STU002"
-            });
+                context.StudentProfiles.Add(new StudentProfile
+                {
+                    IdentityUserId = studentUsers[i].Id,
+                    Name = studentNames[i],
+                    Email = studentEmails[i],
+                    Phone = $"087 {1234567 + i}",
+                    Address = studentAddresses[i],
+                    DateOfBirth = studentDOBs[i],
+                    StudentNumber = studentNumbers[i]
+                });
+            }
         }
-        
-        if (!existingStudents.Any(s => s.StudentNumber == "STU003"))
-        {
-            context.StudentProfiles.Add(new StudentProfile
-            {
-                IdentityUserId = null,
-                Name = "Carol Davis",
-                Email = "carol.davis@example.com",
-                Phone = "087 345 6789",
-                Address = "8 Bay View, Galway",
-                DateOfBirth = new DateTime(1999, 3, 10),
-                StudentNumber = "STU003"
-            });
-        }
-        
-        if (!existingStudents.Any(s => s.StudentNumber == "STU004"))
-        {
-            context.StudentProfiles.Add(new StudentProfile
-            {
-                IdentityUserId = null,
-                Name = "David Miller",
-                Email = "david.miller@example.com",
-                Phone = "087 456 7890",
-                Address = "22 Church Street, Dublin",
-                DateOfBirth = new DateTime(2000, 11, 25),
-                StudentNumber = "STU004"
-            });
-        }
-        
-        if (!existingStudents.Any(s => s.StudentNumber == "STU005"))
-        {
-            context.StudentProfiles.Add(new StudentProfile
-            {
-                IdentityUserId = null,
-                Name = "Emma Wilson",
-                Email = "emma.wilson@example.com",
-                Phone = "087 567 8901",
-                Address = "5 Harbour View, Cork",
-                DateOfBirth = new DateTime(2002, 1, 30),
-                StudentNumber = "STU005"
-            });
-        }
-        
         await context.SaveChangesAsync();
 
+        // Create Courses
         var dublinBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Dublin Branch");
         var corkBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Cork Branch");
         var galwayBranch = await context.Branches.FirstOrDefaultAsync(b => b.Name == "Galway Branch");
-        var facultyProfile = await context.FacultyProfiles.FirstOrDefaultAsync(f => f.Name == "Professor John Smith");
 
         if (!context.Courses.Any())
         {
-            var coursesList = new List<Course>();
-            
-            if (dublinBranch != null)
-            {
-                coursesList.Add(new Course
-                {
-                    Name = "Computer Science",
-                    BranchId = dublinBranch.Id,
-                    FacultyProfileId = facultyProfile?.Id,
-                    StartDate = new DateTime(2026, 9, 1),
-                    EndDate = new DateTime(2027, 5, 31)
-                });
-                coursesList.Add(new Course
-                {
-                    Name = "Business Management",
-                    BranchId = dublinBranch.Id,
-                    FacultyProfileId = facultyProfile?.Id,
-                    StartDate = new DateTime(2026, 9, 1),
-                    EndDate = new DateTime(2027, 5, 31)
-                });
-            }
-            
-            if (corkBranch != null)
-            {
-                coursesList.Add(new Course
-                {
-                    Name = "Software Engineering",
-                    BranchId = corkBranch.Id,
-                    FacultyProfileId = facultyProfile?.Id,
-                    StartDate = new DateTime(2026, 9, 1),
-                    EndDate = new DateTime(2027, 5, 31)
-                });
-            }
-            
-            if (galwayBranch != null)
-            {
-                coursesList.Add(new Course
-                {
-                    Name = "Data Science",
-                    BranchId = galwayBranch.Id,
-                    FacultyProfileId = facultyProfile?.Id,
-                    StartDate = new DateTime(2026, 9, 1),
-                    EndDate = new DateTime(2027, 5, 31)
-                });
-            }
-            
-            if (coursesList.Any())
-            {
-                context.Courses.AddRange(coursesList);
-                await context.SaveChangesAsync();
-            }
+            context.Courses.AddRange(
+                new Course { Name = "Computer Science", BranchId = dublinBranch.Id, FacultyProfileId = facultyProfile?.Id, StartDate = new DateTime(2026, 9, 1), EndDate = new DateTime(2027, 5, 31) },
+                new Course { Name = "Business Management", BranchId = dublinBranch.Id, FacultyProfileId = facultyProfile?.Id, StartDate = new DateTime(2026, 9, 1), EndDate = new DateTime(2027, 5, 31) },
+                new Course { Name = "Software Engineering", BranchId = corkBranch.Id, FacultyProfileId = facultyProfile?.Id, StartDate = new DateTime(2026, 9, 1), EndDate = new DateTime(2027, 5, 31) },
+                new Course { Name = "Data Science", BranchId = galwayBranch.Id, FacultyProfileId = facultyProfile?.Id, StartDate = new DateTime(2026, 9, 1), EndDate = new DateTime(2027, 5, 31) }
+            );
+            await context.SaveChangesAsync();
         }
 
+        // Create Enrolments
         if (!context.CourseEnrolments.Any())
         {
             var students = await context.StudentProfiles.ToListAsync();
             var courses = await context.Courses.ToListAsync();
+            var enrolments = new List<CourseEnrolment>();
+            var rnd = new Random();
 
-            if (students.Any() && courses.Any())
+            foreach (var student in students)
             {
-                var enrolments = new List<CourseEnrolment>();
-                var rnd = new Random();
+                int numCourses = rnd.Next(1, 3);
+                var shuffledCourses = courses.OrderBy(x => rnd.Next()).Take(numCourses);
 
-                foreach (var student in students)
+                foreach (var course in shuffledCourses)
                 {
-                    int numCourses = rnd.Next(1, Math.Min(3, courses.Count + 1));
-                    var shuffledCourses = courses.OrderBy(x => rnd.Next()).Take(numCourses);
-
-                    foreach (var course in shuffledCourses)
+                    enrolments.Add(new CourseEnrolment
                     {
-                        if (!context.CourseEnrolments.Any(e => e.StudentProfileId == student.Id && e.CourseId == course.Id))
-                        {
-                            enrolments.Add(new CourseEnrolment
-                            {
-                                StudentProfileId = student.Id,
-                                CourseId = course.Id,
-                                EnrolDate = DateTime.Today.AddDays(-rnd.Next(0, 30)),
-                                Status = "Active"
-                            });
-                        }
-                    }
+                        StudentProfileId = student.Id,
+                        CourseId = course.Id,
+                        EnrolDate = DateTime.Today.AddDays(-rnd.Next(0, 30)),
+                        Status = "Active"
+                    });
                 }
+            }
 
-                if (enrolments.Any())
-                {
-                    context.CourseEnrolments.AddRange(enrolments);
-                    await context.SaveChangesAsync();
-                }
+            if (enrolments.Any())
+            {
+                context.CourseEnrolments.AddRange(enrolments);
+                await context.SaveChangesAsync();
             }
         }
 
+        // Create Assignments
         if (!context.Assignments.Any())
         {
             var courses = await context.Courses.ToListAsync();
@@ -280,39 +181,25 @@ public static class SeedData
 
             foreach (var course in courses)
             {
-                assignments.Add(new Assignment
-                {
-                    CourseId = course.Id,
-                    Title = "Assignment 1 - Introduction",
-                    MaxScore = 100,
-                    DueDate = DateTime.Today.AddDays(14)
-                });
-                assignments.Add(new Assignment
-                {
-                    CourseId = course.Id,
-                    Title = "Assignment 2 - Midterm Project",
-                    MaxScore = 100,
-                    DueDate = DateTime.Today.AddDays(30)
-                });
+                assignments.Add(new Assignment { CourseId = course.Id, Title = "Assignment 1 - Introduction", MaxScore = 100, DueDate = DateTime.Today.AddDays(14) });
+                assignments.Add(new Assignment { CourseId = course.Id, Title = "Assignment 2 - Midterm Project", MaxScore = 100, DueDate = DateTime.Today.AddDays(30) });
             }
 
             context.Assignments.AddRange(assignments);
             await context.SaveChangesAsync();
         }
 
+        // Create Assignment Results
         if (!context.AssignmentResults.Any())
         {
             var assignments = await context.Assignments.ToListAsync();
-            var enrolments = await context.CourseEnrolments.Include(e => e.StudentProfile).ToListAsync();
+            var enrolments = await context.CourseEnrolments.ToListAsync();
             var results = new List<AssignmentResult>();
             var rnd = new Random();
 
             foreach (var assignment in assignments)
             {
-                var studentsInCourse = enrolments
-                    .Where(e => e.CourseId == assignment.CourseId)
-                    .Select(e => e.StudentProfileId)
-                    .Distinct();
+                var studentsInCourse = enrolments.Where(e => e.CourseId == assignment.CourseId).Select(e => e.StudentProfileId).Distinct();
 
                 foreach (var studentId in studentsInCourse)
                 {
@@ -333,6 +220,7 @@ public static class SeedData
             }
         }
 
+        // Create Exams
         if (!context.Exams.Any())
         {
             var courses = await context.Courses.ToListAsync();
@@ -340,54 +228,31 @@ public static class SeedData
 
             foreach (var course in courses)
             {
-                exams.Add(new Exam
-                {
-                    CourseId = course.Id,
-                    Title = "Midterm Exam",
-                    Date = DateTime.Today.AddDays(21),
-                    MaxScore = 100,
-                    ResultsReleased = false
-                });
-                exams.Add(new Exam
-                {
-                    CourseId = course.Id,
-                    Title = "Final Exam",
-                    Date = DateTime.Today.AddDays(60),
-                    MaxScore = 100,
-                    ResultsReleased = false
-                });
+                exams.Add(new Exam { CourseId = course.Id, Title = "Midterm Exam", Date = DateTime.Today.AddDays(21), MaxScore = 100, ResultsReleased = false });
+                exams.Add(new Exam { CourseId = course.Id, Title = "Final Exam", Date = DateTime.Today.AddDays(60), MaxScore = 100, ResultsReleased = false });
             }
 
             context.Exams.AddRange(exams);
             await context.SaveChangesAsync();
         }
 
+        // Create Exam Results
         if (!context.ExamResults.Any())
         {
             var exams = await context.Exams.ToListAsync();
-            var enrolments = await context.CourseEnrolments.Include(e => e.StudentProfile).ToListAsync();
+            var enrolments = await context.CourseEnrolments.ToListAsync();
             var results = new List<ExamResult>();
             var rnd = new Random();
 
             foreach (var exam in exams)
             {
-                var studentsInCourse = enrolments
-                    .Where(e => e.CourseId == exam.CourseId)
-                    .Select(e => e.StudentProfileId)
-                    .Distinct();
+                var studentsInCourse = enrolments.Where(e => e.CourseId == exam.CourseId).Select(e => e.StudentProfileId).Distinct();
 
                 foreach (var studentId in studentsInCourse)
                 {
                     int score = rnd.Next(55, 95);
                     string grade = score >= 70 ? "A" : score >= 60 ? "B" : score >= 50 ? "C" : "D";
-
-                    results.Add(new ExamResult
-                    {
-                        ExamId = exam.Id,
-                        StudentProfileId = studentId,
-                        Score = score,
-                        Grade = grade
-                    });
+                    results.Add(new ExamResult { ExamId = exam.Id, StudentProfileId = studentId, Score = score, Grade = grade });
                 }
             }
 
@@ -398,6 +263,7 @@ public static class SeedData
             }
         }
 
+        // Create Attendance Records
         if (!context.AttendanceRecords.Any())
         {
             var enrolments = await context.CourseEnrolments.ToListAsync();
