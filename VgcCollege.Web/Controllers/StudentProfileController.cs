@@ -139,4 +139,39 @@ public class StudentProfileController : Controller
     {
         return _context.StudentProfiles.Any(e => e.Id == id);
     }
+
+    [Authorize(Roles = "Student")]
+    public async Task<IActionResult> MyProfile()
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var student = await _context.StudentProfiles
+            .FirstOrDefaultAsync(s => s.IdentityUserId == userId);
+
+        if (student == null)
+        {
+            return NotFound("Student profile not found. Please contact support.");
+        }
+
+        var enrolments = await _context.CourseEnrolments
+            .Include(e => e.Course)
+            .Where(e => e.StudentProfileId == student.Id)
+            .ToListAsync();
+
+        var assignmentResults = await _context.AssignmentResults
+            .Include(r => r.Assignment)
+            .ThenInclude(a => a.Course)
+            .Where(r => r.StudentProfileId == student.Id)
+            .ToListAsync();
+
+        ViewBag.Enrolments = enrolments;
+        ViewBag.AssignmentResults = assignmentResults;
+        
+        return View(student);
+    }
 }

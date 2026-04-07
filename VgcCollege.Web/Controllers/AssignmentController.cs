@@ -203,4 +203,32 @@ public class AssignmentController : Controller
     {
         return _context.Assignments.Any(e => e.Id == id);
     }
+
+    [Authorize(Roles = "Student")]
+    public async Task<IActionResult> MyAssignments()
+    {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var student = await _context.StudentProfiles
+            .FirstOrDefaultAsync(s => s.IdentityUserId == userId);
+
+        if (student == null)
+        {
+            return NotFound("Student profile not found.");
+        }
+
+        var results = await _context.AssignmentResults
+            .Include(r => r.Assignment)
+            .ThenInclude(a => a.Course)
+            .Where(r => r.StudentProfileId == student.Id)
+            .ToListAsync();
+
+        ViewBag.StudentName = student.Name;
+        return View(results);
+    }
 }
