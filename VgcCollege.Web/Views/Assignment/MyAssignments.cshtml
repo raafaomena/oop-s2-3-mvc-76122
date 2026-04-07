@@ -1,18 +1,55 @@
-@model TModel
+@model IEnumerable<VgcCollege.Web.Models.AssignmentResult>
 
 @{
-    Layout = null;
+    ViewData["Title"] = "My Assignments";
 }
 
-<!DOCTYPE html>
+<h1>My Assignments</h1>
+<h4>Student: @ViewBag.StudentName</h4>
+<hr />
 
-<html>
-<head>
-    <title>title</title>
-</head>
-<body>
-<div>
-      
-</div>
-</body>
-</html>
+@if (Model != null && Model.Any())
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Assignment</th>
+            <th>Course</th>
+            <th>Due Date</th>
+            <th>Score</th>
+            <th>Max Score</th>
+            <th>Percentage</th>
+            <th>Feedback</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Assignment?.Title</td>
+                <td>@item.Assignment?.Course?.Name</td>
+                <td>@item.Assignment?.DueDate.ToShortDateString()</td>
+                <td>@item.Score</td>
+                <td>@item.Assignment?.MaxScore</td>
+                <td>
+                    @{
+                        double percentage = (double)item.Score / (item.Assignment?.MaxScore ?? 1) * 100;
+                    }
+                    @percentage.ToString("F1")%
+                </td>
+                <td>@item.Feedback</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">
+        No assignment results available yet.
+    </div>
+}
+
+<p>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Back to Home</a>
+</p>
