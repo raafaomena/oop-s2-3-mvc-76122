@@ -20,10 +20,16 @@ jobs:
           dotnet-version: "9.0.x"
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore VgcCollege.Web/VgcCollege.Web.csproj
 
-      - name: Build in Release mode
-        run: dotnet build --configuration Release --no-restore
+      - name: Restore test dependencies
+        run: dotnet restore VgcCollege.Tests/VgcCollege.Tests.csproj
+
+      - name: Build Web project
+        run: dotnet build VgcCollege.Web/VgcCollege.Web.csproj --configuration Release --no-restore
+
+      - name: Build Test project
+        run: dotnet build VgcCollege.Tests/VgcCollege.Tests.csproj --configuration Release --no-restore
 
       - name: Run tests
-        run: dotnet test --configuration Release --no-build --verbosity normal
+        run: dotnet test VgcCollege.Tests/VgcCollege.Tests.csproj --configuration Release --no-build --verbosity normal
