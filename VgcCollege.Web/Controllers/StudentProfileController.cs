@@ -18,7 +18,41 @@ public class StudentProfileController : Controller
     [Authorize(Roles = "Admin,Faculty")]
     public async Task<IActionResult> Index()
     {
-        var students = await _context.StudentProfiles.ToListAsync();
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var isAdmin = User.IsInRole("Admin");
+        
+        List<StudentProfile> students;
+
+        if (isAdmin)
+        {
+            students = await _context.StudentProfiles.ToListAsync();
+        }
+        else
+        {
+            var faculty = await _context.FacultyProfiles
+                .FirstOrDefaultAsync(f => f.IdentityUserId == userId);
+            
+            if (faculty == null)
+            {
+                return Forbid();
+            }
+            
+            var facultyCourseIds = await _context.Courses
+                .Where(c => c.FacultyProfileId == faculty.Id)
+                .Select(c => c.Id)
+                .ToListAsync();
+            
+            var studentIds = await _context.CourseEnrolments
+                .Where(e => facultyCourseIds.Contains(e.CourseId))
+                .Select(e => e.StudentProfileId)
+                .Distinct()
+                .ToListAsync();
+            
+            students = await _context.StudentProfiles
+                .Where(s => studentIds.Contains(s.Id))
+                .ToListAsync();
+        }
+
         return View(students);
     }
 
@@ -35,6 +69,31 @@ public class StudentProfileController : Controller
         if (student == null)
         {
             return NotFound();
+        }
+
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var isAdmin = User.IsInRole("Admin");
+        
+        if (!isAdmin)
+        {
+            var faculty = await _context.FacultyProfiles
+                .FirstOrDefaultAsync(f => f.IdentityUserId == userId);
+            
+            if (faculty != null)
+            {
+                var facultyCourseIds = await _context.Courses
+                    .Where(c => c.FacultyProfileId == faculty.Id)
+                    .Select(c => c.Id)
+                    .ToListAsync();
+                
+                var isStudentInFacultyCourse = await _context.CourseEnrolments
+                    .AnyAsync(e => e.StudentProfileId == student.Id && facultyCourseIds.Contains(e.CourseId));
+                
+                if (!isStudentInFacultyCourse)
+                {
+                    return Forbid();
+                }
+            }
         }
 
         return View(student);
