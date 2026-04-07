@@ -1,18 +1,90 @@
-@model TModel
-
 @{
-    Layout = null;
+    ViewData["Title"] = "Faculty Dashboard";
 }
 
-<!DOCTYPE html>
+<h1>Welcome, @ViewBag.FacultyName</h1>
+<hr />
 
-<html>
-<head>
-    <title>title</title>
-</head>
-<body>
-<div>
-      
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">My Courses</h5>
+                <p class="card-text display-4">@ViewBag.TotalCourses</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">My Students</h5>
+                <p class="card-text display-4">@ViewBag.TotalStudents</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Assignments</h5>
+                <p class="card-text display-4">@ViewBag.TotalAssignments</p>
+            </div>
+        </div>
+    </div>
 </div>
-</body>
-</html>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>My Courses</h5>
+            </div>
+            <div class="card-body">
+                @{
+                    var myCourses = ViewBag.MyCourses as List<VgcCollege.Web.Models.Course>;
+                }
+                @if (myCourses != null && myCourses.Any())
+                {
+                    foreach (var course in myCourses)
+                    {
+                        <div class="alert alert-info">
+                            <strong>@course.Name</strong><br />
+                            Students Enrolled: @course.Enrolments.Count<br />
+                            <a asp-controller="Assignment" asp-action="Index" asp-route-courseId="@course.Id" class="btn btn-sm btn-primary">Assignments</a>
+                            <a asp-controller="AttendanceRecord" asp-action="Index" class="btn btn-sm btn-info">Attendance</a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>No courses assigned yet.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Quick Links</h5>
+            </div>
+            <div class="card-body">
+                <a asp-controller="StudentProfile" asp-action="Index" class="btn btn-primary m-1">View My Students</a>
+                <a asp-controller="Assignment" asp-action="Index" class="btn btn-success m-1">Gradebook</a>
+                <a asp-controller="Exam" asp-action="Index" class="btn btn-info m-1">Exam Results</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Upcoming Deadlines</h5>
+            </div>
+            <div class="card-body">
+                <p>Check your assignments for pending grades.</p>
+                <p>Use the Assignments section to enter student grades.</p>
+            </div>
+        </div>
+    </div>
+</div>
